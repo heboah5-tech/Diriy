@@ -1,0 +1,8 @@
+{
+  "name": "Diriyah Clone",
+  "description": "Diriyah reservation and ticketing app clone",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,425 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+interface BinData {
+  valid: boolean;
+  number: number;
+  scheme: string;
+  brand: string;
+  type: string;
+  level: string;
+  currency: string;
+  issuer: {
+    name: string;
+    website?: string;
+    phone?: string;
+  };
+  country: {
+    country: string;
+    alpha2: string;
+    language: string;
+  };
+}
+
+interface BinInfoProps {
+  cardNumber: string;
+}
+
+const SCHEME_COLORS: Record<string, string> = {
+  VISA: "bg-blue-100 text-blue-800 border-blue-200",
+  MASTERCARD: "bg-red-100 text-red-800 border-red-200",
+  AMEX: "bg-green-100 text-green-800 border-green-200",
+  MADA: "bg-purple-100 text-purple-800 border-purple-200",
+};
+
+const TYPE_COLORS: Record<string, string> = {
+  CREDIT: "bg-amber-100 text-amber-700",
+  DEBIT: "bg-emerald-100 text-emerald-700",
+  PREPAID: "bg-slate-100 text-slate-700",
+};
+
+const BANK_NAME_AR: Array<[RegExp, string]> = [
+  // ===== Saudi Arabia =====
+  [/SAUDI NATIONAL BANK|SNB|AL AHLI/i, "البنك الأهلي السعودي"],
+  [/AL[\s-]?RAJHI/i, "بنك الراجحي"],
+  [/RIYAD BANK/i, "بنك الرياض"],
+  [/BANQUE SAUDI FRANSI|SAUDI FRANSI/i, "البنك السعودي الفرنسي"],
+  [/ARAB NATIONAL BANK|ANB/i, "البنك العربي الوطني"],
+  [/SAMBA FINANCIAL|SAMBA/i, "بنك ساوب (سامبا)"],
+  [/BANK ALBILAD|AL BILAD/i, "بنك البلاد"],
+  [/BANK ALJAZIRA|AL JAZIRA/i, "بنك الجزيرة"],
+  [/ALINMA/i, "بنك الإنماء"],
+  [/SAUDI BRITISH BANK|SABB/i, "البنك السعودي البريطاني"],
+  [/GULF INTERNATIONAL BANK|GIB/i, "البنك الدولي للخليج"],
+  [/SAUDI INVESTMENT BANK|SAIB/i, "البنك السعودي للاستثمار"],
+  [/NATIONAL COMMERCIAL BANK|NCB/i, "البنك الأهلي التجاري"],
+  [/SAUDI HOLLANDI|ALAWWAL/i, "البنك السعودي الهولندي"],
+  [/DERAYAH/i, "شركة ديراية المالية"],
+  [/STC BANK|STC PAY/i, "بنك STC"],
+
+  // ===== UAE =====
+  [/EMIRATES NBD/i, "بنك الإمارات دبي الوطني"],
+  [/FIRST ABU DHABI BANK|FAB/i, "بنك أبوظبي الأول"],
+  [/ABU DHABI COMMERCIAL BANK|ADCB/i, "بنك أبوظبي التجاري"],
+  [/ABU DHABI ISLAMIC BANK|ADIB/i, "مصرف أبوظبي الإسلامي"],
+  [/MASHREQ/i, "بنك المشرق"],
+  [/DUBAI ISLAMIC BANK|DIB/i, "بنك دبي الإسلامي"],
+  [/NATIONAL BANK OF ABU DHABI|NBAD/i, "البنك الوطني لأبوظبي"],
+  [/UNION NATIONAL BANK|UNB/i, "بنك الاتحاد الوطني"],
+  [/COMMERCIAL BANK OF DUBAI|CBD/i, "البنك التجاري لدبي"],
+  [/EMIRATES ISLAMIC/i, "الإمارات الإسلامي"],
+  [/RAK BANK|NATIONAL BANK OF RAS AL KHAIMAH/i, "بنك رأس الخيمة الوطني"],
+
+  // ===== Kuwait =====
+  [/NATIONAL BANK OF KUWAIT|NBK/i, "بنك الكويت الوطني"],
+  [/KUWAIT FINANCE HOUSE|KFH/i, "بيت التمويل الكويتي"],
+  [/BURGAN BANK/i, "بنك برقان"],
+  [/GULF BANK/i, "البنك الخليجي"],
+  [/AL AHLI BANK OF KUWAIT/i, "البنك الأهلي الكويتي"],
+
+  // ===== Qatar =====
+  [/QATAR NATIONAL BANK|QNB/i, "بنك قطر الوطني"],
+  [/COMMERCIAL BANK OF QATAR/i, "البنك التجاري القطري"],
+  [/DOHA BANK/i, "بنك الدوحة"],
+  [/QATAR ISLAMIC BANK|QIB/i, "بنك قطر الإسلامي"],
+  [/MASRAF AL RAYAN/i, "مصرف الريان"],
+
+  // ===== Bahrain =====
+  [/BANK OF BAHRAIN AND KUWAIT|BBK/i, "بنك البحرين والكويت"],
+  [/AHLI UNITED BANK/i, "البنك الأهلي المتحد"],
+  [/NATIONAL BANK OF BAHRAIN|NBB/i, "البنك الوطني البحريني"],
+  [/BAHRAIN ISLAMIC BANK/i, "مصرف البحرين الإسلامي"],
+
+  // ===== Oman =====
+  [/BANK MUSCAT/i, "بنك مسقط"],
+  [/NATIONAL BANK OF OMAN|NBO/i, "البنك الوطني العُماني"],
+  [/BANK DHOFAR/i, "بنك ظفار"],
+  [/OMAN ARAB BANK/i, "البنك العربي العُماني"],
+
+  // ===== Egypt =====
+  [/NATIONAL BANK OF EGYPT|NBE/i, "البنك الأهلي المصري"],
+  [/BANQUE MISR/i, "بنك مصر"],
+  [/COMMERCIAL INTERNATIONAL BANK|CIB EGYPT/i, "البنك التجاري الدولي (مصر)"],
+  [/BANK OF ALEXANDRIA/i, "بنك الإسكندرية"],
+  [/ARAB AFRICAN INTERNATIONAL BANK|AAIB/i, "البنك العربي الأفريقي الدولي"],
+
+  // ===== Jordan / Lebanon =====
+  [/ARAB BANK/i, "البنك العربي"],
+  [/BANK OF JORDAN/i, "بنك الأردن"],
+  [/JORDAN AHLI BANK/i, "البنك الأهلي الأردني"],
+  [/BANK AUDI/i, "بنك عودة"],
+  [/BLOM BANK/i, "بنك بلوم"],
+  [/BYBLOS BANK/i, "بنك بيبلوس"],
+
+  // ===== International — USA =====
+  [/JPMORGAN CHASE|CHASE BANK/i, "جي بي مورغان تشيس"],
+  [/BANK OF AMERICA/i, "بنك أوف أمريكا"],
+  [/CITIBANK|CITIGROUP/i, "سيتي بنك"],
+  [/WELLS FARGO/i, "ويلز فارغو"],
+  [/GOLDMAN SACHS/i, "غولدمان ساكس"],
+  [/MORGAN STANLEY/i, "مورغان ستانلي"],
+  [/AMERICAN EXPRESS|AMEX/i, "أمريكان إكسبريس"],
+  [/CAPITAL ONE/i, "كابيتال ون"],
+  [/US BANK|U\.S\. BANK/i, "يو إس بنك"],
+  [/BANK OF NEW YORK|BNY MELLON/i, "بنك نيويورك ميلون"],
+  [/PNC BANK/i, "بنك PNC"],
+  [/TRUIST/i, "بنك تروست"],
+  [/DISCOVER/i, "ديسكفر"],
+
+  // ===== International — Europe =====
+  [/HSBC/i, "إتش إس بي سي"],
+  [/BARCLAYS/i, "باركليز"],
+  [/LLOYDS/i, "لويدز بنك"],
+  [/NATWEST|NATIONAL WESTMINSTER/i, "ناتويست بنك"],
+  [/STANDARD CHARTERED/i, "ستاندرد تشارترد"],
+  [/SANTANDER/i, "بنك سانتاندر"],
+  [/BNP PARIBAS/i, "بي إن بي باريبا"],
+  [/SOCIÉTÉ GÉNÉRALE|SOCIETE GENERALE/i, "سوسيتيه جنرال"],
+  [/CREDIT AGRICOLE/i, "كريدي أغريكول"],
+  [/DEUTSCHE BANK/i, "دويتشه بنك"],
+  [/COMMERZBANK/i, "كومرتس بنك"],
+  [/ING BANK|ING GROUP/i, "بنك إيه إن جي"],
+  [/ABN AMRO/i, "بنك ABN أمرو"],
+  [/UNICREDIT/i, "يوني كريدت"],
+  [/INTESA SANPAOLO/i, "إنتيسا سان باولو"],
+  [/UBS/i, "بنك UBS"],
+  [/CREDIT SUISSE/i, "كريدي سويس"],
+  [/RAIFFEISEN/i, "بنك رايفايزن"],
+  [/NORDEA/i, "بنك نورديا"],
+  [/DNB BANK/i, "بنك دي إن بي"],
+  [/SEB BANK/i, "بنك SEB"],
+  [/SWEDBANK/i, "سويدبنك"],
+
+  // ===== International — Asia & Other =====
+  [
+    /INDUSTRIAL AND COMMERCIAL BANK OF CHINA|ICBC/i,
+    "البنك الصناعي والتجاري الصيني",
+  ],
+  [/CHINA CONSTRUCTION BANK|CCB/i, "بنك تشاينا كونستراكشن"],
+  [/BANK OF CHINA/i, "بنك الصين"],
+  [/AGRICULTURAL BANK OF CHINA/i, "بنك الزراعة الصيني"],
+  [/BANK OF COMMUNICATIONS/i, "بنك المواصلات الصيني"],
+  [/STATE BANK OF INDIA|SBI/i, "بنك ولاية الهند"],
+  [/HDFC BANK/i, "بنك HDFC"],
+  [/ICICI BANK/i, "بنك ICICI"],
+  [/AXIS BANK/i, "بنك آكسيس"],
+  [/MITSUBISHI UFJ|MUFG/i, "بنك ميتسوبيشي UFJ"],
+  [/SUMITOMO MITSUI/i, "بنك سوميتومو ميتسوي"],
+  [/MIZUHO/i, "بنك ميزوهو"],
+  [/DBS BANK/i, "بنك DBS"],
+  [/OCBC/i, "بنك OCBC"],
+  [/UOB/i, "بنك UOB"],
+  [/MAYBANK/i, "بنك مايبنك"],
+  [/BANGKOK BANK/i, "بنك بانكوك"],
+  [/KASIKORN BANK/i, "بنك كاسيكورن"],
+];
+
+function translateBankName(englishName: string): string {
+  if (!englishName) return englishName;
+  for (const [pattern, arabic] of BANK_NAME_AR) {
+    if (pattern.test(englishName)) return arabic;
+  }
+  return englishName;
+}
+
+const COUNTRY_AR: Record<string, string> = {
+  "UNITED STATES": "الولايات المتحدة",
+  "UNITED KINGDOM": "المملكة المتحدة",
+  "SAUDI ARABIA": "المملكة العربية السعودية",
+  "UNITED ARAB EMIRATES": "الإمارات العربية المتحدة",
+  KUWAIT: "الكويت",
+  QATAR: "قطر",
+  BAHRAIN: "البحرين",
+  OMAN: "عُمان",
+  JORDAN: "الأردن",
+  EGYPT: "مصر",
+  LEBANON: "لبنان",
+  IRAQ: "العراق",
+  YEMEN: "اليمن",
+  GERMANY: "ألمانيا",
+  FRANCE: "فرنسا",
+  SPAIN: "إسبانيا",
+  ITALY: "إيطاليا",
+  NETHERLANDS: "هولندا",
+  SWITZERLAND: "سويسرا",
+  SWEDEN: "السويد",
+  NORWAY: "النرويج",
+  DENMARK: "الدنمارك",
+  FINLAND: "فنلندا",
+  CANADA: "كندا",
+  AUSTRALIA: "أستراليا",
+  CHINA: "الصين",
+  JAPAN: "اليابان",
+  INDIA: "الهند",
+  SINGAPORE: "سنغافورة",
+  MALAYSIA: "ماليزيا",
+  THAILAND: "تايلاند",
+  "SOUTH KOREA": "كوريا الجنوبية",
+  TURKEY: "تركيا",
+  RUSSIA: "روسيا",
+  BRAZIL: "البرازيل",
+  MEXICO: "المكسيك",
+  INDONESIA: "إندونيسيا",
+  PAKISTAN: "باكستان",
+  BANGLADESH: "بنغلاديش",
+  NIGERIA: "نيجيريا",
+  "SOUTH AFRICA": "جنوب أفريقيا",
+};
+
+function translateCountry(englishCountry: string): string {
+  if (!englishCountry) return englishCountry;
+  const upper = englishCountry.toUpperCase();
+  return COUNTRY_AR[upper] || englishCountry;
+}
+
+const clientCache = new Map<string, BinData | "error">();
+const inFlight = new Map<string, Promise<BinData | "error">>();
+
+async function fetchBin(bin: string): Promise<BinData | "error"> {
+  if (clientCache.has(bin)) return clientCache.get(bin)!;
+  if (inFlight.has(bin)) return inFlight.get(bin)!;
+
+  const promise = fetch(`/api/bin?bin=${bin}`)
+    .then((r) => r.json())
+    .then((json): BinData | "error" => {
+      if (json?.BIN?.valid) return json.BIN as BinData;
+      return "error";
+    })
+    .catch((): "error" => "error")
+    .finally(() => inFlight.delete(bin));
+
+  inFlight.set(bin, promise);
+  const result = await promise;
+  clientCache.set(bin, result);
+  return result;
+}
+
+export function useBinData(cardNumber: string) {
+  const [data, setData] = useState<BinData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const bin = cardNumber?.replace(/\D/g, "").slice(0, 6);
+
+  useEffect(() => {
+    if (!bin || bin.length < 6) return;
+    let cancelled = false;
+    const run = async () => {
+      const cached = clientCache.get(bin);
+      if (cached) {
+        if (!cancelled && cached !== "error") setData(cached);
+        return;
+      }
+      if (!cancelled) setLoading(true);
+      const result = await fetchBin(bin);
+      if (!cancelled) {
+        if (result !== "error") setData(result);
+        setLoading(false);
+      }
+    };
+    void run();
+    return () => { cancelled = true; };
+  }, [bin]);
+
+  const bankNameAr = data ? translateBankName(data.issuer?.name) : null;
+  const countryAr = data ? translateCountry(data.country?.country) : null;
+
+  return { data, loading, bankNameAr, countryAr };
+}
+
+export function BinInfo({ cardNumber }: BinInfoProps) {
+  const [data, setData] = useState<BinData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const bin = cardNumber?.replace(/\D/g, "").slice(0, 6);
+  useEffect(() => {
+    if (!bin || bin.length < 6) return;
+
+    let cancelled = false;
+
+    const run = async () => {
+      const cached = clientCache.get(bin);
+
+      if (cached) {
+        if (!cancelled) {
+          setError(cached === "error" ? "تعذّر التحقق من BIN" : "");
+          if (cached !== "error") setData(cached);
+        }
+        return;
+      }
+
+      if (!cancelled) {
+        setLoading(true);
+        setError("");
+      }
+
+      const result = await fetchBin(bin);
+
+      if (!cancelled) {
+        if (result === "error") {
+          setError("تعذّر التحقق من BIN");
+        } else {
+          setData(result);
+        }
+        setLoading(false);
+      }
+    };
+
+    void run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [bin]);
+  if (!bin || bin.length < 6) return null;
+
+  if (loading) {
+    return (
+      <div className="mt-3 flex items-center gap-2 rounded-xl bg-gray-50/80 border border-gray-200/80 px-3 py-2 text-xs text-gray-500">
+        <span className="w-3 h-3 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+        جاري التحقق من BIN...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mt-3 rounded-xl bg-red-50/60 border border-red-100 px-3 py-2 text-xs text-red-500">
+        ⚠ {error}
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
+  const schemeColor =
+    SCHEME_COLORS[data.scheme] || "bg-gray-100 text-gray-700 border-gray-200";
+  const typeColor = TYPE_COLORS[data.type] || "bg-gray-100 text-gray-700";
+
+  const bankNameAr = translateBankName(data.issuer?.name);
+  const countryAr = translateCountry(data.country?.country);
+
+  return (
+    <div className="mt-3 rounded-xl border border-blue-100/80 bg-blue-50/40 overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-blue-100/80 bg-blue-50/60">
+        <span className="text-xs font-bold text-blue-700">معلومات BIN</span>
+        <div className="flex items-center gap-1.5">
+          <span
+            className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${schemeColor}`}
+          >
+            {data.scheme}
+          </span>
+          <span
+            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${typeColor}`}
+          >
+            {data.type === "CREDIT"
+              ? "ائتماني"
+              : data.type === "DEBIT"
+                ? "مدين"
+                : data.type === "PREPAID"
+                  ? "مدفوع مسبقاً"
+                  : data.type}
+          </span>
+        </div>
+      </div>
+
+      <div className="px-3 py-2 space-y-1.5 text-xs">
+        <Row
+          label="البنك"
+          value={bankNameAr}
+        />
+        <Row label="المستوى" value={data.level} />
+        <Row label="العملة" value={data.currency} />
+        <Row label="الدولة" value={`${countryAr} (${data.country?.alpha2})`} />
+        {data.issuer?.phone && (
+          <Row label="هاتف البنك" value={data.issuer.phone} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Row({
+  label,
+  value,
+  originalValue,
+}: {
+  label: string;
+  value?: string;
+  originalValue?: string;
+}) {
+  if (!value) return null;
+  return (
+    <div className="flex items-start justify-between gap-2">
+      <span className="text-gray-500 shrink-0">{label}:</span>
+      <div className="text-right">
+        <span className="text-gray-800 font-medium break-all">{value}</span>
+        {originalValue && (
+          <div className="text-[10px] text-gray-400 break-all">
+            {originalValue}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

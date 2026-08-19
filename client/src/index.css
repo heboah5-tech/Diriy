@@ -1,0 +1,443 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'GraphikArabic';
+  src: url('https://assets.diriyah.sa/fonts/GraphikArabic-Regular.woff2') format('woff2'),
+    url('https://assets.diriyah.sa/fonts/GraphikArabic-Regular.woff') format('woff');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* LIGHT MODE - Diriyah Warm Earthy Theme */
+:root {
+  --button-outline: rgba(0, 0, 0, .10);
+  --badge-outline: rgba(0, 0, 0, .05);
+
+  --opaque-button-border-intensity: -8;
+
+  --elevate-1: rgba(0, 0, 0, .03);
+  --elevate-2: rgba(0, 0, 0, .08);
+
+  --background: 35 30% 96%;
+  --foreground: 25 25% 20%;
+
+  --border: 30 20% 85%;
+
+  --card: 35 35% 98%;
+  --card-foreground: 25 25% 20%;
+  --card-border: 30 20% 88%;
+
+  --sidebar: 30 25% 94%;
+  --sidebar-foreground: 25 25% 25%;
+  --sidebar-border: 30 20% 85%;
+  --sidebar-primary: 340 56% 19%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 30 30% 90%;
+  --sidebar-accent-foreground: 25 25% 20%;
+  --sidebar-ring: 340 56% 19%;
+
+  --popover: 35 35% 98%;
+  --popover-foreground: 25 25% 20%;
+  --popover-border: 30 20% 85%;
+
+  --primary: 340 56% 19%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 35 25% 90%;
+  --secondary-foreground: 25 25% 25%;
+
+  --muted: 35 20% 92%;
+  --muted-foreground: 25 15% 45%;
+
+  --accent: 30 35% 88%;
+  --accent-foreground: 25 30% 25%;
+
+  --destructive: 0 65% 50%;
+  --destructive-foreground: 0 0% 100%;
+
+  --input: 30 20% 80%;
+  --ring: 340 56% 19%;
+  --chart-1: 340 56% 19%;
+  --chart-2: 35 45% 55%;
+  --chart-3: 45 40% 65%;
+  --chart-4: 20 50% 45%;
+  --chart-5: 30 60% 50%;
+
+  --font-sans: 'Roboto', 'Noto Sans Arabic', sans-serif;
+  --font-serif: 'Roboto', 'Noto Sans Arabic', Georgia, serif;
+  --font-mono: Menlo, monospace;
+  --radius: .5rem;
+  --shadow-2xs: 0px 1px 2px 0px rgba(0, 0, 0, 0.03);
+  --shadow-xs: 0px 1px 3px 0px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0px 2px 4px -1px rgba(0, 0, 0, 0.06), 0px 1px 2px -1px rgba(0, 0, 0, 0.03);
+  --shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.08), 0px 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0px 6px 10px -1px rgba(0, 0, 0, 0.08), 0px 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0px 10px 15px -3px rgba(0, 0, 0, 0.08), 0px 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0px 20px 25px -5px rgba(0, 0, 0, 0.08), 0px 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0px 25px 50px -12px rgba(0, 0, 0, 0.15);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --sidebar-accent-border: hsl(var(--sidebar-accent));
+  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --primary-border: hsl(var(--primary));
+  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --secondary-border: hsl(var(--secondary));
+  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --muted-border: hsl(var(--muted));
+  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --accent-border: hsl(var(--accent));
+  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --destructive-border: hsl(var(--destructive));
+  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+}
+
+.dark {
+  --button-outline: rgba(255, 255, 255, .10);
+  --badge-outline: rgba(255, 255, 255, .05);
+
+  --opaque-button-border-intensity: 9;
+
+  --elevate-1: rgba(255, 255, 255, .04);
+  --elevate-2: rgba(255, 255, 255, .09);
+
+  --background: 25 20% 10%;
+  --foreground: 35 20% 90%;
+
+  --border: 25 15% 20%;
+
+  --card: 25 18% 14%;
+  --card-foreground: 35 20% 90%;
+  --card-border: 25 15% 22%;
+
+  --sidebar: 25 20% 12%;
+  --sidebar-foreground: 35 20% 85%;
+  --sidebar-border: 25 15% 20%;
+  --sidebar-primary: 340 50% 30%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 25 20% 18%;
+  --sidebar-accent-foreground: 35 20% 85%;
+  --sidebar-ring: 340 50% 30%;
+
+  --popover: 25 18% 14%;
+  --popover-foreground: 35 20% 90%;
+  --popover-border: 25 15% 22%;
+
+  --primary: 340 50% 30%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 25 18% 20%;
+  --secondary-foreground: 35 20% 85%;
+
+  --muted: 25 15% 18%;
+  --muted-foreground: 35 15% 60%;
+
+  --accent: 25 20% 22%;
+  --accent-foreground: 35 20% 85%;
+
+  --destructive: 0 60% 45%;
+  --destructive-foreground: 0 0% 100%;
+
+  --input: 25 15% 25%;
+  --ring: 340 50% 30%;
+  --chart-1: 340 50% 30%;
+  --chart-2: 35 45% 55%;
+  --chart-3: 45 40% 60%;
+  --chart-4: 20 50% 45%;
+  --chart-5: 30 60% 55%;
+
+  --shadow-2xs: 0px 2px 0px 0px rgba(0, 0, 0, 0.00);
+  --shadow-xs: 0px 2px 0px 0px rgba(0, 0, 0, 0.00);
+  --shadow-sm: 0px 2px 0px 0px rgba(0, 0, 0, 0.00), 0px 1px 2px -1px rgba(0, 0, 0, 0.00);
+  --shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.00), 0px 1px 2px -1px rgba(0, 0, 0, 0.00);
+  --shadow-md: 0px 2px 0px 0px rgba(0, 0, 0, 0.00), 0px 2px 4px -1px rgba(0, 0, 0, 0.00);
+  --shadow-lg: 0px 2px 0px 0px rgba(0, 0, 0, 0.00), 0px 4px 6px -1px rgba(0, 0, 0, 0.00);
+  --shadow-xl: 0px 2px 0px 0px rgba(0, 0, 0, 0.00), 0px 8px 10px -1px rgba(0, 0, 0, 0.00);
+  --shadow-2xl: 0px 2px 0px 0px rgba(0, 0, 0, 0.00);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply antialiased bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out forwards;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  .animate-pulse-soft {
+    animation: pulseSoft 2s ease-in-out infinite;
+  }
+
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .gradient-border {
+    position: relative;
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(30 50% 60%) 100%);
+    padding: 2px;
+    border-radius: 12px;
+  }
+
+  .gradient-border>* {
+    background: hsl(var(--background));
+    border-radius: 10px;
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(30 50% 60%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .shadow-glow {
+    box-shadow: 0 0 20px rgba(212, 165, 116, 0.3);
+  }
+
+  .shadow-glow-lg {
+    box-shadow: 0 0 40px rgba(212, 165, 116, 0.4);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulseSoft {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Dashboard row alerts: pulsing background + colored left border that
+   fades out over ~8 seconds. Each kind uses a distinct hue so the
+   admin can see at a glance which sensitive event just fired. */
+@keyframes rowAlertCheckout {
+  0% {
+    background-color: rgba(239, 68, 68, 0.35);
+    box-shadow: inset 4px 0 0 rgba(239, 68, 68, 0.95);
+  }
+  20% {
+    background-color: rgba(239, 68, 68, 0.18);
+    box-shadow: inset 4px 0 0 rgba(239, 68, 68, 0.7);
+  }
+  100% {
+    background-color: rgba(239, 68, 68, 0);
+    box-shadow: inset 4px 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+@keyframes rowAlertOtp {
+  0% {
+    background-color: rgba(245, 158, 11, 0.35);
+    box-shadow: inset 4px 0 0 rgba(245, 158, 11, 0.95);
+  }
+  20% {
+    background-color: rgba(245, 158, 11, 0.18);
+    box-shadow: inset 4px 0 0 rgba(245, 158, 11, 0.7);
+  }
+  100% {
+    background-color: rgba(245, 158, 11, 0);
+    box-shadow: inset 4px 0 0 rgba(245, 158, 11, 0);
+  }
+}
+
+@keyframes rowAlertConfirmation {
+  0% {
+    background-color: rgba(16, 185, 129, 0.3);
+    box-shadow: inset 4px 0 0 rgba(16, 185, 129, 0.9);
+  }
+  20% {
+    background-color: rgba(16, 185, 129, 0.15);
+    box-shadow: inset 4px 0 0 rgba(16, 185, 129, 0.6);
+  }
+  100% {
+    background-color: rgba(16, 185, 129, 0);
+    box-shadow: inset 4px 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.row-alert-checkout {
+  animation: rowAlertCheckout 8s ease-out forwards;
+}
+
+.row-alert-otp {
+  animation: rowAlertOtp 8s ease-out forwards;
+}
+
+.row-alert-confirmation {
+  animation: rowAlertConfirmation 8s ease-out forwards;
+}
+
+@layer utilities {
+  input[type="search"]::-webkit-search-cancel-button {
+    @apply hidden;
+  }
+
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: hsl(var(--muted-foreground));
+    pointer-events: none;
+  }
+
+  .no-default-hover-elevate {}
+
+  .no-default-active-elevate {}
+
+  .toggle-elevate::before,
+  .toggle-elevate-2::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    border-radius: inherit;
+    z-index: -1;
+  }
+
+  .toggle-elevate.toggle-elevated::before {
+    background-color: var(--elevate-2);
+  }
+
+  .border.toggle-elevate::before {
+    inset: -1px;
+  }
+
+  .hover-elevate:not(.no-default-hover-elevate),
+  .active-elevate:not(.no-default-active-elevate),
+  .hover-elevate-2:not(.no-default-hover-elevate),
+  .active-elevate-2:not(.no-default-active-elevate) {
+    position: relative;
+    z-index: 0;
+  }
+
+  .hover-elevate:not(.no-default-hover-elevate)::after,
+  .active-elevate:not(.no-default-active-elevate)::after,
+  .hover-elevate-2:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:not(.no-default-active-elevate)::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    border-radius: inherit;
+    z-index: 999;
+  }
+
+  .hover-elevate:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate:active:not(.no-default-active-elevate)::after {
+    background-color: var(--elevate-1);
+  }
+
+  .hover-elevate-2:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:active:not(.no-default-active-elevate)::after {
+    background-color: var(--elevate-2);
+  }
+
+  .border.hover-elevate:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate:not(.no-active-interaction-elevate)::after,
+  .border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
+  .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
+    inset: -1px;
+  }
+}
+
+.sticky {
+  background-color: transparent !important;
+}
