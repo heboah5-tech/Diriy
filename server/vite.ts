@@ -11,7 +11,7 @@ const viteLogger = createLogger();
 export async function setupVite(server: Server, app: Express) {
   const serverOptions = {
     middlewareMode: true,
-    hmr: { server, path: "/vite-hmr" },
+    hmr: false,
     allowedHosts: true as const,
   };
 
@@ -21,8 +21,9 @@ export async function setupVite(server: Server, app: Express) {
     customLogger: {
       ...viteLogger,
       error: (msg, options) => {
-        viteLogger.error(msg, options);
-        process.exit(1);
+        try {
+          viteLogger.error(msg, options);
+        } catch (e) {}
       },
     },
     server: serverOptions,
@@ -49,8 +50,13 @@ export async function setupVite(server: Server, app: Express) {
         `src="/src/main.tsx?v=${nanoid()}"`,
       );
       const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ "Content-Type": "text/html" }).end(page);
-    } catch (e) {
+      if (!res.writableEnded && !res.destroyed) {
+        res.status(200).set({ "Content-Type": "text/html" }).end(page);
+      }
+    } catch (e: any) {
+      if (e?.code === "EPIPE" || e?.code === "ECONNRESET") {
+        return;
+      }
       vite.ssrFixStacktrace(e as Error);
       next(e);
     }

@@ -34,12 +34,17 @@ export const setupOnlineStatus = (userId: string) => {
   if (existing) return existing.cleanup;
 
   const ref = doc(null, "pays", userId);
-  const writeOnline = (online: boolean) =>
-    setDoc(
-      ref,
-      { online, lastSeen: new Date().toISOString() },
-      { merge: true },
-    ).catch((err) => console.error("Error syncing online state:", err));
+  const writeOnline = async (online: boolean) => {
+    try {
+      await setDoc(
+        ref,
+        { online, lastSeen: new Date().toISOString() },
+        { merge: true },
+      );
+    } catch {
+      // Ignore network failures for presence heartbeat
+    }
+  };
 
   const channel = supabase.channel(`presence:${userId}`, {
     config: { presence: { key: userId } },
@@ -82,7 +87,7 @@ export const setUserOffline = async (userId: string) => {
       { online: false, lastSeen: new Date().toISOString() },
       { merge: true },
     );
-  } catch (error) {
-    console.error("Error setting user offline:", error);
+  } catch {
+    // Ignore network failures
   }
 };
